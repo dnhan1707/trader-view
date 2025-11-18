@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { DataTable } from '@/components/DataTable'
 import { useSymbol } from '@/components/SymbolContext'
 
-export function ReferencePanel() {
+export function ReferencePanel({ dense }: { dense?: boolean } = {}) {
   const { symbol } = useSymbol()
   const [limit, setLimit] = useState(50)
   const { data: exchanges } = useSWR(['exchanges'], () => api.exchanges())
@@ -29,6 +29,7 @@ export function ReferencePanel() {
           <input type="number" min={10} max={500} value={limit} onChange={(e) => setLimit(parseInt(e.target.value || '50'))} className="w-20 bg-black/30 border border-terminal-border rounded px-2 py-1 text-sm" />
         </div>
       }
+      dense={dense}
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <div className="panel">

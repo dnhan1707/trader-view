@@ -6,29 +6,23 @@ import { api } from '@/lib/api'
 import { useSymbol } from '@/components/SymbolContext'
 import { DataTable } from '@/components/DataTable'
 
-export function StocksPanel() {
+export function StocksPanel({ dense }: { dense?: boolean } = {}) {
   const { symbol } = useSymbol()
-  const { data: shortI } = useSWR(['shortI', symbol], () => api.shortInterest({ ticker: symbol, limit: 100 }))
-  const { data: shortV } = useSWR(['shortV', symbol], () => api.shortVolume({ ticker: symbol, limit: 100 }))
+  const { data: shortI } = useSWR(['shortI', symbol], () => api.shortInterest({ ticker: symbol, limit: 100 }), { revalidateOnFocus: false, dedupingInterval: 60000 })
 
   const rowsI = shortI?.results || shortI?.data || shortI?.items || []
-  const rowsV = shortV?.results || shortV?.data || shortV?.items || []
+  // short volume disabled to stay within API rate limit
 
   return (
-    <Panel title={`Stocks · ${symbol}`}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div className="panel">
+    <Panel title={`Stocks · ${symbol}`} dense={dense}>
+      <div className="grid grid-cols-1 gap-3 min-h-0">
+        <div className="panel flex flex-col min-h-0">
           <div className="panel-header">Short Interest</div>
-          <div className="panel-body">
+          <div className="panel-body min-h-0 overflow-auto">
             <DataTable rows={rowsI} columns={inferColumns(rowsI)} />
           </div>
         </div>
-        <div className="panel">
-          <div className="panel-header">Short Volume</div>
-          <div className="panel-body">
-            <DataTable rows={rowsV} columns={inferColumns(rowsV)} />
-          </div>
-        </div>
+        {/** Short Volume panel removed to reduce API usage */}
       </div>
     </Panel>
   )

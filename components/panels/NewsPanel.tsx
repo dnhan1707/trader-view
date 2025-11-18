@@ -5,13 +5,13 @@ import { Panel } from '@/components/Panel'
 import { api } from '@/lib/api'
 import { useSymbol } from '@/components/SymbolContext'
 
-export function NewsPanel() {
+export function NewsPanel({ dense }: { dense?: boolean } = {}) {
   const { symbol } = useSymbol()
-  const { data } = useSWR(['news', symbol], () => api.news({ ticker: symbol, limit: 20, order: 'desc', sort: 'published_utc' }))
+  const { data } = useSWR(['news', symbol], () => api.news({ ticker: symbol, limit: 20, order: 'desc', sort: 'published_utc' }), { revalidateOnFocus: false, dedupingInterval: 60000 })
   const items: any[] = data?.results || data?.data || data?.items || []
 
   return (
-    <Panel title={`News · ${symbol}`}>
+    <Panel title={`News · ${symbol}`} dense={dense}>
       <ul className="space-y-3">
         {items.length === 0 && <li className="text-terminal-muted">No news</li>}
         {items.map((n, i) => (

@@ -8,11 +8,12 @@ import { useSymbol } from '@/components/SymbolContext'
 import { IndicatorChart, toSeriesPoints } from '@/components/IndicatorChart'
 import { DataTable } from '@/components/DataTable'
 
-type IndicatorKind = 'SMA' | 'EMA' | 'MACD' | 'RSI'
+// Limit indicators to SMA to stay within API rate limits
+type IndicatorKind = 'SMA'
 
-export function IndicatorsPanel() {
+export function IndicatorsPanel({ dense }: { dense?: boolean } = {}) {
   const { symbol } = useSymbol()
-  const [kind, setKind] = useState<IndicatorKind>('SMA')
+  const [kind] = useState<IndicatorKind>('SMA')
   const [windowSize, setWindowSize] = useState<number>(14)
   const [limit, setLimit] = useState<number>(200)
 
@@ -20,46 +21,55 @@ export function IndicatorsPanel() {
 
   const { data, error, isLoading } = useSWR(key, async () => {
     const p = { window: windowSize, limit }
-    if (kind === 'SMA') return api.sma(symbol, p)
-    if (kind === 'EMA') return api.ema(symbol, p)
-    if (kind === 'MACD') return api.macd(symbol, { short_window: 12, long_window: 26, signal_window: 9, limit })
-    return api.rsi(symbol, p)
-  })
+    return api.sma(symbol, p)
+  }, { revalidateOnFocus: false, dedupingInterval: 60000 })
 
-  const results: any[] = useMemo(() => data?.results || data?.data || data?.items || data?.values || [], [data])
-  const series = useMemo(() => toSeriesPoints(results), [results])
+  // SMA sample shape: { results: { values: [{ timestamp, value }, ...], underlying: {...} }, status: 'OK' }
+  const values: any[] = useMemo(() => {
+    if (Array.isArray(data?.results?.values)) return data.results.values
+    if (Array.isArray(data?.values)) return data.values
+    if (Array.isArray(data?.results)) return data.results
+    if (Array.isArray(data?.data)) return data.data
+    if (Array.isArray(data?.items)) return data.items
+    return []
+  }, [data])
+
+  const series = useMemo(() => toSeriesPoints(values), [values])
+  const tableRows = useMemo(
+    () =>
+      values.map((r: any) => ({
+        time: r?.timestamp ? new Date(r.timestamp).toLocaleDateString() : r?.time ?? '',
+        value: typeof r?.value === 'number' ? r.value : Number(r?.value ?? 0),
+      })),
+    [values]
+  )
 
   return (
     <Panel
       title={`Indicators · ${symbol}`}
       actions={
         <div className="flex items-center gap-2">
-          <select value={kind} onChange={(e) => setKind(e.target.value as IndicatorKind)} className="bg-black/30 border border-terminal-border rounded px-2 py-1 text-sm">
-            <option>SMA</option>
-            <option>EMA</option>
-            <option>MACD</option>
-            <option>RSI</option>
-          </select>
+          <span className="text-xs text-terminal-muted">Indicator: SMA</span>
           <label className="text-terminal-muted text-xs">Window</label>
           <input type="number" min={2} max={200} value={windowSize} onChange={(e) => setWindowSize(parseInt(e.target.value || '14'))} className="w-16 bg-black/30 border border-terminal-border rounded px-2 py-1 text-sm" />
           <label className="text-terminal-muted text-xs">Limit</label>
           <input type="number" min={50} max={1000} value={limit} onChange={(e) => setLimit(parseInt(e.target.value || '200'))} className="w-20 bg-black/30 border border-terminal-border rounded px-2 py-1 text-sm" />
         </div>
       }
+      dense={dense}
     >
       {isLoading && <div className="text-terminal-muted">Loading...</div>}
       {error && <div className="text-terminal-danger">Error: {String(error.message || error)}</div>}
       {!!series.length && <IndicatorChart data={series} />}
+      {data?.results?.underlying?.url && (
+        <div className="text-xs text-terminal-muted mt-2">
+          Underlying: <a href={data.results.underlying.url} target="_blank" rel="noreferrer" className="text-terminal-info hover:underline">open ↗</a>
+        </div>
+      )}
       <div className="mt-3">
-        <DataTable rows={results} columns={inferColumns(results)} />
+        <DataTable rows={tableRows} columns={["time", "value"]} />
       </div>
     </Panel>
   )
 }
 
-function inferColumns(rows: any[]): string[] {
-  if (!Array.isArray(rows) || rows.length === 0) return []
-  const keys = new Set<string>()
-  for (const r of rows.slice(0, 5)) Object.keys(r || {}).forEach((k) => keys.add(k))
-  return Array.from(keys)
-}

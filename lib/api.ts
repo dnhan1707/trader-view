@@ -11,20 +11,20 @@ async function get<T>(path: string, params?: Record<string, any>): Promise<T> {
 }
 
 export const api = {
-  health: () => get<string>('/health'),
+  // health: () => get<string>('/health'), // Disabled to save API budget
   ticker: (symbol: string) => get<any>(`/api/tickers/${encodeURIComponent(symbol)}`),
   sma: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/sma/${encodeURIComponent(symbol)}`, params),
-  ema: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/ema/${encodeURIComponent(symbol)}`, params),
-  macd: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/macd/${encodeURIComponent(symbol)}`, params),
-  rsi: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/rsi/${encodeURIComponent(symbol)}`, params),
-  exchanges: (params?: Record<string, any>) => get<any>('/api/exchanges', params),
-  marketUpcoming: () => get<any[]>('/api/market/upcoming'),
+  // ema: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/ema/${encodeURIComponent(symbol)}`, params),
+  // macd: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/macd/${encodeURIComponent(symbol)}`, params),
+  // rsi: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/rsi/${encodeURIComponent(symbol)}`, params),
+  // exchanges: (params?: Record<string, any>) => get<any>('/api/exchanges', params),
+  // marketUpcoming: () => get<any[]>('/api/market/upcoming'),
   marketNow: () => get<any>('/api/market/now'),
-  conditions: (params?: Record<string, any>) => get<any>('/api/market/condition', params),
-  ipos: (params?: Record<string, any>) => get<any>('/api/ipos', params),
-  dividends: (params?: Record<string, any>) => get<any>('/api/dividends', params),
+  // conditions: (params?: Record<string, any>) => get<any>('/api/market/condition', params),
+  // ipos: (params?: Record<string, any>) => get<any>('/api/ipos', params),
+  // dividends: (params?: Record<string, any>) => get<any>('/api/dividends', params),
   shortInterest: (params?: Record<string, any>) => get<any>('/api/stocks/short-interest', params),
-  shortVolume: (params?: Record<string, any>) => get<any>('/api/stocks/short-volume', params),
+  // shortVolume: (params?: Record<string, any>) => get<any>('/api/stocks/short-volume', params),
   news: (params?: Record<string, any>) => get<any>('/api/news', params),
 }
 
