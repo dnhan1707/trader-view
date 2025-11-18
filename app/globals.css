@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  @apply bg-terminal-bg text-terminal-text antialiased;
+}
+
+.panel {
+  @apply bg-terminal-panel border border-terminal-border rounded-md;
+}
+
+.panel-header {
+  @apply px-3 py-2 border-b border-terminal-border text-sm text-terminal-muted tracking-wide uppercase;
+}
+
+.panel-body {
+  @apply p-3;
+}
+
+.kbd {
+  @apply inline-block px-1.5 py-0.5 rounded border border-terminal-border text-xs text-terminal-muted bg-black/30;
+}
+
+/* Scrollbar styling */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background-color: #1b222c; border-radius: 8px; }
+*::-webkit-scrollbar-track { background-color: transparent; }
