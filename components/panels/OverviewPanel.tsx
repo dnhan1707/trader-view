@@ -54,6 +54,7 @@ export function OverviewPanel({ dense }: { dense?: boolean } = {}) {
     high: snapshotData.ticker.day?.h,
     low: snapshotData.ticker.day?.l,
     close: snapshotData.ticker.prevDay?.c,
+    prevClose: snapshotData.ticker.prevDay?.c, // Add prevClose for consistency
     volume: snapshotData.ticker.day?.v,
     lastPriceDirection: snapshotData.ticker.todaysChange > 0 ? 'up' : snapshotData.ticker.todaysChange < 0 ? 'down' : 'neutral'
   } : undefined)

@@ -14,9 +14,10 @@ export interface RealtimeStockData {
   close?: number
   high?: number
   low?: number
-  volume?: number
-  accumulatedVolume?: number
+  volume?: number // Bar volume (this specific candle)
+  accumulatedVolume?: number // Total volume traded today (CRITICAL for header)
   officialOpen?: number
+  prevClose?: number // Previous day close for correct change calculation
   
   // Derived
   priceChange?: number
@@ -113,28 +114,28 @@ export function RealtimeDataProvider({ children }: RealtimeDataProviderProps) {
       messages.forEach(message => {
         try {
           if (message.ev === 'T') {
-            // Stock Trade - Live price updates
+            // Stock Trade - Live price updates ONLY
+            // DO NOT calculate price change here - we need prevClose first
             const trade = message as StockTrade
             const existing = stockUpdates.get(trade.sym)
-            
-            const priceChange = existing ? trade.p - existing.currentPrice : 0
-            const priceChangePercent = existing && existing.currentPrice ? 
-              (priceChange / existing.currentPrice) * 100 : 0
             
             stockUpdates.set(trade.sym, {
               ...existing,
               ticker: trade.sym,
               currentPrice: trade.p,
               lastTradeTime: trade.t,
-              priceChange,
-              priceChangePercent,
-              lastPriceDirection: priceChange > 0 ? 'up' : priceChange < 0 ? 'down' : 'neutral',
+              // Price change calculation moved to when we have prevClose
+              priceChange: existing?.prevClose ? trade.p - existing.prevClose : existing?.priceChange,
+              priceChangePercent: existing?.prevClose ? 
+                ((trade.p - existing.prevClose) / existing.prevClose) * 100 : existing?.priceChangePercent,
+              lastPriceDirection: existing?.prevClose && trade.p !== existing.prevClose ?
+                (trade.p > existing.prevClose ? 'up' : 'down') : existing?.lastPriceDirection || 'neutral',
               flashPrice: true
             })
             hasStockUpdates = true
 
           } else if (message.ev === 'AM' || message.ev === 'A') {
-            // Stock Aggregate - OHLC data
+            // Stock Aggregate - OHLC data with CORRECT volume mapping
             const agg = message as StockAgg
             const existing = stockUpdates.get(agg.sym)
             
@@ -147,8 +148,8 @@ export function RealtimeDataProvider({ children }: RealtimeDataProviderProps) {
               close: agg.c,
               high: agg.h,
               low: agg.l,
-              volume: agg.v,
-              accumulatedVolume: agg.av,
+              volume: agg.v,  // Bar volume (for charts) - this specific candle
+              accumulatedVolume: agg.av,  // CRITICAL: Total volume today (for header display)
               officialOpen: agg.op
             })
             hasStockUpdates = true
