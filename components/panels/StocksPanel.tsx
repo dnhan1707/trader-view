@@ -8,7 +8,7 @@ import { DataTable } from '@/components/DataTable'
 
 export function StocksPanel({ dense }: { dense?: boolean } = {}) {
   const { symbol } = useSymbol()
-  const { data: shortI } = useSWR(['shortI', symbol], () => api.shortInterest({ ticker: symbol, limit: 100 }), { revalidateOnFocus: false, dedupingInterval: 60000 })
+  const { data: shortI } = useSWR(['shortI', symbol], () => api.shortInterest({ ticker: symbol, limit: 50, sort: 'settlement_date.desc' }), { revalidateOnFocus: false, dedupingInterval: 300000 }) // 5 min cache
 
   const rowsI = shortI?.results || shortI?.data || shortI?.items || []
   // short volume disabled to stay within API rate limit

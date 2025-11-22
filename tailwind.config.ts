@@ -17,7 +17,11 @@ export default {
           accent: '#00e396',
           danger: '#ff4560',
           warning: '#feb019',
-          info: '#008ffb'
+          info: '#008ffb',
+          // Aliases for common terminal colors
+          background: '#0b0e13',
+          foreground: '#d6e2f0',
+          success: '#00e396'
         }
       }
     }

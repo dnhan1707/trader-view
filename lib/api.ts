@@ -13,6 +13,8 @@ async function get<T>(path: string, params?: Record<string, any>): Promise<T> {
 export const api = {
   // health: () => get<string>('/health'), // Disabled to save API budget
   ticker: (symbol: string) => get<any>(`/api/tickers/${encodeURIComponent(symbol)}`),
+  ratios: (symbol: string) => get<any>(`/api/stocks/ratios?ticker=${encodeURIComponent(symbol)}&limit=1`),
+  snapshot: (symbol: string) => get<any>(`/api/snapshot/stocks/tickers/${encodeURIComponent(symbol)}`),
   sma: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/sma/${encodeURIComponent(symbol)}`, params),
   // ema: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/ema/${encodeURIComponent(symbol)}`, params),
   // macd: (symbol: string, params?: Record<string, any>) => get<any>(`/api/indicators/macd/${encodeURIComponent(symbol)}`, params),
