@@ -10,6 +10,9 @@ A minimalist, professional trading terminal UI built with Next.js 14, optimized 
 - News: Recent articles for the selected ticker
 - Reference: Exchanges, Dividends, IPOs, Condition Codes
 
+<img width="2549" height="1215" alt="traderview" src="https://github.com/user-attachments/assets/465e622e-ebbd-4f47-a633-05559f95482d" />
+
+
 Requirements
 ------------
 - Node.js 18+
